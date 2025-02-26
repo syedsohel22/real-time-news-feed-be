@@ -1,7 +1,6 @@
 const express = require("express");
 const News = require("../models/News.model");
 const authMiddleware = require("../middleware/auth.middleware");
-
 const router = express.Router();
 
 /**
@@ -73,7 +72,8 @@ router.post("/", authMiddleware, async (req, res) => {
 
     const news = new News(req.body);
     await news.save();
-    // io.emit("newsUpdate", news);
+    req.io.emit("newsUpdate", news);
+
     res
       .status(201)
       .json({ message: "News article created successfully", news });

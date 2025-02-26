@@ -9,7 +9,13 @@ const setupSwagger = require("./swaggerConfig");
 dotenv.config();
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+  },
+});
 
 app.use(cors());
 app.use(express.json());
@@ -33,8 +39,14 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => console.log("Client disconnected"));
 });
 
+app.use((req, res, next) => {
+  req.io = io; // Attach socket.io instance to req
+  next();
+});
 app.use("/api/v1/auth", require("./routes/authRoutes"));
 app.use("/api/v1/user", require("./routes/userRoutes"));
 app.use("/api/v1/news", require("./routes/newsRoutes"));
 
 server.listen(5000, () => console.log("Server running on port 5000"));
+
+module.exports = io;
